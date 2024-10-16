@@ -1,6 +1,3 @@
-Sure! Here’s the README for your game, written in English and filled with emojis:
-
-```markdown
 # 🎮 Interactive Adventure Game 🚀
 
 Welcome to our fantastic Adventure Game! Join us on this exciting journey where you can explore unique worlds, solve puzzles, and experience unforgettable adventures! 🌟
