@@ -1,85 +1,50 @@
-import React, { useState, useEffect } from "react";
-import GameBoard from "./components/GameBoard";
+import React, { useState, useCallback } from 'react';
+import GameBoard from './components/GameBoard';
+import Controls from './components/Controls';
+import useImages from './hooks/useImages';
+import { ThemeProvider } from './hooks/ThemeContext';
 
 const BOARD_SIZE = 10;
 
 function App() {
   const [playerPosition, setPlayerPosition] = useState({ row: 0, col: 0 });
-  const [isDarkMode, setIsDarkMode] = useState(false);
-  const [images, setImages] = useState([]);
-  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const { currentImage, nextImage } = useImages();
+  const [gameKey, setGameKey] = useState(0);
 
-  useEffect(() => {
-    setImages(["image1.jpg", "image2.jpg", "image3.jpg"]);
+  const movePlayer = useCallback((direction) => {
+    setPlayerPosition((prevPos) => {
+      const newPos = { ...prevPos };
+      switch (direction) {
+        case 'up': newPos.row = Math.max(0, prevPos.row - 1); break;
+        case 'down': newPos.row = Math.min(BOARD_SIZE - 1, prevPos.row + 1); break;
+        case 'left': newPos.col = Math.max(0, prevPos.col - 1); break;
+        case 'right': newPos.col = Math.min(BOARD_SIZE - 1, prevPos.col + 1); break;
+        default: break;
+      }
+      return newPos;
+    });
   }, []);
 
-  const movePlayer = (direction) => {
-    setPlayerPosition((prevPos) => {
-      let newRow = prevPos.row;
-      let newCol = prevPos.col;
-
-      switch (direction) {
-        case "up":
-          newRow = Math.max(0, prevPos.row - 1);
-          break;
-        case "down":
-          newRow = Math.min(BOARD_SIZE - 1, prevPos.row + 1);
-          break;
-        case "left":
-          newCol = Math.max(0, prevPos.col - 1);
-          break;
-        case "right":
-          newCol = Math.min(BOARD_SIZE - 1, prevPos.col + 1);
-          break;
-        default:
-          break;
-      }
-
-      return { row: newRow, col: newCol };
-    });
-  };
-
-  const toggleDarkMode = () => {
-    setIsDarkMode((prev) => !prev);
-  };
-
-  const nextImage = () => {
-    setCurrentImageIndex((prev) => (prev + 1) % images.length);
-  };
+  const resetGame = useCallback(() => {
+    setPlayerPosition({ row: 0, col: 0 });
+    setGameKey(prevKey => prevKey + 1);
+  }, []);
 
   return (
-    <div
-      className={`flex flex-col items-center justify-center min-h-screen ${
-        isDarkMode ? "bg-gray-900 text-white" : "bg-gray-100 text-black"
-      }`}
-    >
-      <h1 className="text-3xl font-bold mb-4">Esplora l'Immagine</h1>
-      <GameBoard
-        playerPosition={playerPosition}
-        movePlayer={movePlayer}
-        isDarkMode={isDarkMode}
-        currentImage={images[currentImageIndex]}
-      />
-      <div className="mt-4 space-y-2">
-        <p>Usa le frecce della tastiera per muoverti e rivelare l'immagine</p>
-        <button
-          onClick={toggleDarkMode}
-          className={`px-4 py-2 rounded ${
-            isDarkMode ? "bg-gray-200 text-black" : "bg-gray-800 text-white"
-          }`}
-        >
-          {isDarkMode ? "Modalità Chiara" : "Modalità Scura"}
-        </button>
-        <button
-          onClick={nextImage}
-          className={`px-4 py-2 rounded ${
-            isDarkMode ? "bg-blue-500 text-white" : "bg-blue-600 text-white"
-          }`}
-        >
-          Prossima Immagine
-        </button>
+    <ThemeProvider>
+      <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-b from-blue-100 to-blue-300 dark:from-gray-800 dark:to-gray-900 transition-colors duration-500">
+        <h1 className="text-4xl font-bold mb-8 text-blue-800 dark:text-blue-300">Esplora l'Immagine</h1>
+        <GameBoard
+          key={gameKey}
+          playerPosition={playerPosition}
+          movePlayer={movePlayer}
+          currentImage={currentImage}
+          boardSize={BOARD_SIZE}
+          onVictory={nextImage}
+        />
+        <Controls onReset={resetGame} />
       </div>
-    </div>
+    </ThemeProvider>
   );
 }
 

@@ -1,11 +1,11 @@
-import React from 'react';
+import MainAfter from '../assets/MainAfter.jpg';
 
-function BackgroundImage({ currentImage }) {
+function BackgroundImage() {
   return (
-    <div 
+    <div
       className="absolute top-0 left-0 w-full h-full bg-cover bg-center"
-      style={{ backgroundImage: `url(${currentImage})` }}
-    />
+      style={{ backgroundImage: `url(${MainAfter})` }}
+    ></div>
   );
 }
 
