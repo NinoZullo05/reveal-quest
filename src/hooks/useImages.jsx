@@ -1,20 +1,17 @@
-import { useState, useCallback } from 'react';
+import { useState } from 'react';
+import Images from '../constants/Images';
 
-const images = [
-  '../assets/MainAfter.jpg',
-];
-
-function useImages() {
+const useImages = () => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const imageArray = [Images.IMAGE_1, Images.IMAGE_2, Images.IMAGE_3]; // Add all your images here
 
-  const nextImage = useCallback(() => {
-    setCurrentImageIndex((prevIndex) => (prevIndex + 1) % images.length);
-  }, []);
+  const currentImage = imageArray[currentImageIndex];
 
-  return {
-    currentImage: images[currentImageIndex],
-    nextImage,
+  const nextImage = () => {
+    setCurrentImageIndex((prevIndex) => (prevIndex + 1) % imageArray.length);
   };
-}
+
+  return { currentImage, nextImage };
+};
 
 export default useImages;
