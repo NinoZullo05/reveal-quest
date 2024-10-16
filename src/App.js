@@ -13,7 +13,7 @@ function App() {
   const [gameKey, setGameKey] = useState(0);
   const [isMobile, setIsMobile] = useState(false);
 
-  const imageArray = [Images.MAIN_AFTER];
+  const imageArray = [Images.MAIN_AFTER, Images.image1];
   const currentImage = imageArray[currentImageIndex];
 
   useEffect(() => {
@@ -55,23 +55,28 @@ function App() {
 
   return (
     <ThemeProvider>
-      <div className="flex flex-col items-center justify-center min-h-screen p-4 bg-gradient-to-b from-blue-100 to-blue-300 dark:from-gray-800 dark:to-gray-900 transition-colors duration-500">
-        <h1 className="text-2xl md:text-4xl font-bold mb-4 md:mb-8 text-blue-800 dark:text-blue-300">Esplora l'Immagine</h1>
-        <GameBoard
-          key={gameKey}
-          playerPosition={playerPosition}
-          movePlayer={movePlayer}
-          currentImage={currentImage}
-          boardSize={BOARD_SIZE}
-          onVictory={onVictory}
-          onRestart={resetGame}
-          onNewLevel={newLevel}
-        />
-        <Controls onReset={resetGame} />
+      <div className="flex flex-col items-center justify-between min-h-screen p-4 bg-gradient-to-b from-blue-100 to-blue-300 dark:from-gray-800 dark:to-gray-900 transition-colors duration-500">
+        <div className="w-full max-w-[520px] flex flex-col items-center flex-grow">
+          <h1 className="text-2xl md:text-4xl font-bold mb-4 md:mb-8 text-blue-800 dark:text-blue-300">
+            Esplora l'Immagine
+          </h1>
+          <GameBoard
+            key={gameKey}
+            playerPosition={playerPosition}
+            movePlayer={movePlayer}
+            currentImage={currentImage}
+            boardSize={BOARD_SIZE}
+            onVictory={onVictory}
+            onRestart={resetGame}
+            onNewLevel={newLevel}
+          />
+          <div className={`w-full ${isMobile ? 'mb-40' : 'mb-4'}`}>
+            <Controls onReset={resetGame} />
+          </div>
+        </div>
         {isMobile && <MobileController onMove={movePlayer} />}
       </div>
     </ThemeProvider>
   );
 }
-
 export default App;
