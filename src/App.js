@@ -13,7 +13,7 @@ function App() {
   const [gameKey, setGameKey] = useState(0);
   const [isMobile, setIsMobile] = useState(false);
 
-  const imageArray = [Images.IMAGE_1, Images.IMAGE_2, Images.IMAGE_3];
+  const imageArray = [Images.MAIN_AFTER];
   const currentImage = imageArray[currentImageIndex];
 
   useEffect(() => {
