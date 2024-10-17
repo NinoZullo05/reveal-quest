@@ -12,6 +12,7 @@ const Images = {
   Walk9: require('../sprites/Walk (9).png'),
   Walk10: require('../sprites/Walk (10).png'),
   // Add here more img
+  Idle1 : require('../sprites/Idle (1).png'),
 };
 
 export default Images;

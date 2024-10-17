@@ -73,7 +73,7 @@ const GamePage = () => {
 
   const handleImagesLoaded = (images) => {
     setBackgroundImages(images);
-    setCurrentImageIndex(0); // Reset to the first image if needed
+    setCurrentImageIndex(0);
   };
 
   return (
