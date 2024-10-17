@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import GameBoard from './components/GameBoard';
-// import Controls from './components/Controls'; Deprecated : now use Sidebar component. 
+// import Controls from './components/Controls'; deprecated : now use Sidenav.
 import MobileController from './components/MobileController';
 import { ThemeProvider } from './hooks/ThemeContext';
 import Images from './constants/Images';
@@ -13,7 +13,7 @@ function App() {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [gameKey, setGameKey] = useState(0);
   const [isMobile, setIsMobile] = useState(false);
-  const [victory, setVictory] = useState(false); 
+  const [victory, setVictory] = useState(false);
 
   const imageArray = [Images.MAIN_AFTER, Images.image1];
   const currentImage = imageArray[currentImageIndex];
@@ -53,7 +53,11 @@ function App() {
 
   const onVictory = useCallback(() => {
     console.log("Victory!");
-    setVictory(true); // Set victory to true when the player wins
+    setVictory(true); 
+  }, []);
+
+  const closePopup = useCallback(() => {
+    setVictory(false);
   }, []);
 
   return (
@@ -62,7 +66,7 @@ function App() {
         <div className="w-full max-w-[520px] flex flex-col items-center flex-grow">
         <Sidebar onReset={resetGame} onNewLevel={newLevel} />
 
-          <h1 className="text-2xl md:text-4xl font-bold mb-4 md:mb-8 text-blue-800 dark:text-blue-300">
+          <h1 className="mt-10 text-2xl md:text-4xl font-bold mb-4 md:mb-8 text-blue-800 dark:text-blue-300">
             Esplora l'Immagine
           </h1>
           <GameBoard
@@ -75,7 +79,7 @@ function App() {
             onRestart={resetGame}
             onNewLevel={newLevel}
           />
-     
+         
         </div>
         {isMobile && <MobileController onMove={movePlayer} />}
         
@@ -83,7 +87,8 @@ function App() {
           <VictoryPopup 
             onRestart={resetGame} 
             onNewLevel={newLevel} 
-            image={currentImage}  
+            image={currentImage}
+            onClose={closePopup}
           />
         )}
       </div>

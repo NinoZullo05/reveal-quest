@@ -1,9 +1,9 @@
 import * as Dialog from '@radix-ui/react-dialog';
 import { Trophy, Rocket, RotateCcw } from 'lucide-react';
 
-function VictoryPopup({ onRestart, onNewLevel, image }) {
+function VictoryPopup({ onRestart, onNewLevel, image, onClose }) {
   return (
-    <Dialog.Root open={true}>
+    <Dialog.Root open={true} onOpenChange={onClose}>
       <Dialog.DialogOverlay className="fixed inset-0 bg-black/30" />
       <Dialog.Content className="fixed inset-0 flex items-center justify-center">
         <div className="bg-white p-4 rounded-lg shadow-md">
@@ -22,7 +22,10 @@ function VictoryPopup({ onRestart, onNewLevel, image }) {
 
             <div className="grid grid-cols-2 gap-4 w-full">
               <button
-                onClick={onRestart}
+                onClick={() => {
+                  onRestart();
+                  onClose(); 
+                }}
                 className="flex items-center justify-center gap-2 px-4 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg"
               >
                 <RotateCcw className="w-4 h-4" />
@@ -30,7 +33,10 @@ function VictoryPopup({ onRestart, onNewLevel, image }) {
               </button>
 
               <button
-                onClick={onNewLevel}
+                onClick={() => {
+                  onNewLevel();
+                  onClose(); 
+                }}
                 className="flex items-center justify-center gap-2 px-4 py-3 bg-green-500 hover:bg-green-600 text-white rounded-lg"
               >
                 <Rocket className="w-4 h-4" />

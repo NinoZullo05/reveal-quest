@@ -56,10 +56,7 @@ function GameBoard({ playerPosition, movePlayer, currentImage, boardSize, onVict
     }
   }, [tiles]);
 
-  const handleVictory = () => {
-    setShowVictory(false);
-    onVictory();
-  };
+
 
   return (
     <div className={`relative w-full max-w-[520px] aspect-square bg-white dark:bg-gray-800 p-2 shadow-lg rounded-lg border-4 ${isDarkMode ? 'border-gray-600' : 'border-gray-300'} overflow-hidden`}>
