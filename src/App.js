@@ -1,10 +1,11 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import GameBoard from './components/GameBoard';
-import Controls from './components/Controls';
+// import Controls from './components/Controls'; Deprecated : now use Sidebar component. 
 import MobileController from './components/MobileController';
 import { ThemeProvider } from './hooks/ThemeContext';
 import Images from './constants/Images';
-
+import Sidebar from './components/SideBar';
+import VictoryPopup from './components/VictoryPopup'; 
 const BOARD_SIZE = 10;
 
 function App() {
@@ -12,6 +13,7 @@ function App() {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [gameKey, setGameKey] = useState(0);
   const [isMobile, setIsMobile] = useState(false);
+  const [victory, setVictory] = useState(false); 
 
   const imageArray = [Images.MAIN_AFTER, Images.image1];
   const currentImage = imageArray[currentImageIndex];
@@ -51,12 +53,15 @@ function App() {
 
   const onVictory = useCallback(() => {
     console.log("Victory!");
+    setVictory(true); // Set victory to true when the player wins
   }, []);
 
   return (
     <ThemeProvider>
       <div className="flex flex-col items-center justify-between min-h-screen p-4 bg-gradient-to-b from-blue-100 to-blue-300 dark:from-gray-800 dark:to-gray-900 transition-colors duration-500">
         <div className="w-full max-w-[520px] flex flex-col items-center flex-grow">
+        <Sidebar onReset={resetGame} onNewLevel={newLevel} />
+
           <h1 className="text-2xl md:text-4xl font-bold mb-4 md:mb-8 text-blue-800 dark:text-blue-300">
             Esplora l'Immagine
           </h1>
@@ -70,13 +75,20 @@ function App() {
             onRestart={resetGame}
             onNewLevel={newLevel}
           />
-          <div className={`w-full ${isMobile ? 'mb-40' : 'mb-4'}`}>
-            <Controls onReset={resetGame} />
-          </div>
+     
         </div>
         {isMobile && <MobileController onMove={movePlayer} />}
+        
+        {victory && (
+          <VictoryPopup 
+            onRestart={resetGame} 
+            onNewLevel={newLevel} 
+            image={currentImage}  
+          />
+        )}
       </div>
     </ThemeProvider>
   );
 }
+
 export default App;

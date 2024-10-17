@@ -1,5 +1,5 @@
 import { useTheme } from '../hooks/ThemeContext';
-
+// DPRECATED
 function Controls({ onReset }) {
   const { isDarkMode, toggleTheme } = useTheme();
 

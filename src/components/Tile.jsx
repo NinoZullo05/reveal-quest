@@ -16,7 +16,13 @@ function Tile({ row, col, playerPosition, explored, currentImage, boardSize }) {
         transition: 'all 0.3s ease',
       }}
     >
-      {isPlayerHere && <Player />}
+      {isPlayerHere && (
+        <div className="absolute inset-0 flex items-center justify-center">
+          <div className="w-3/4 h-3/4">
+            <Player />
+          </div>
+        </div>
+      )}
     </div>
   );
 }
