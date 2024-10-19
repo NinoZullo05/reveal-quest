@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
+import  { useState } from 'react';
 import { Menu, Home, Settings, HelpCircle, Sun, Moon, RotateCcw } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useTheme } from '../hooks/ThemeContext';
 import SettingsPopup from './SettingsPopup'; 
 
-function Sidebar({ onReset, onNewLevel }) {
+function Sidebar({ onReset, onNewLevel , onSettings }) {
   const { isDarkMode, toggleTheme } = useTheme();
   const [isOpen, setIsOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false); 
@@ -76,7 +76,7 @@ function Sidebar({ onReset, onNewLevel }) {
               <li>
                 <button
                   className="flex items-center space-x-3 w-full p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-                  onClick={handleSettingsClick} 
+                  onClick={onSettings}
                 >
                   <Settings className="w-5 h-5 text-gray-600" />
                   {isOpen && <span className="dark:text-white text-black">Impostazioni</span>}
