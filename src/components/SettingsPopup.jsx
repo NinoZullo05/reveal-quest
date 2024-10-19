@@ -1,91 +1,127 @@
-import React, { useState } from 'react';
-import Images from '../constants/Images';
-import JSZip from 'jszip';
+import React, { useState, useEffect } from "react";
+import Images from "../constants/Images";
+import JSZip from "jszip";
+import { X } from "lucide-react";
+
+const STORAGE_KEY = "uploadedImages";
+const MAX_STORED_IMAGES = 20;
 
 const SettingsPopup = ({ onClose, onConfirm = () => {}, onReset }) => {
   const [selectedSprite, setSelectedSprite] = useState(Images.Idle1);
   const [selectedImage, setSelectedImage] = useState(null);
   const [backgroundImages, setBackgroundImages] = useState([]);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    const loadStoredImages = async () => {
+      const storedImages = JSON.parse(
+        localStorage.getItem(STORAGE_KEY) || "[]"
+      );
+      const loadedImages = await Promise.all(
+        storedImages.map(async (item) => {
+          const response = await fetch(item.data);
+          const blob = await response.blob();
+          return URL.createObjectURL(blob);
+        })
+      );
+      setBackgroundImages(loadedImages);
+    };
+    loadStoredImages();
+  }, []);
+
+  const saveImages = async (imagesToSave) => {
+    const imagesToStore = await Promise.all(
+      imagesToSave.map(async (url) => {
+        const response = await fetch(url);
+        const blob = await response.blob();
+        return {
+          data: await new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.onloadend = () => resolve(reader.result);
+            reader.readAsDataURL(blob);
+          }),
+          type: blob.type,
+        };
+      })
+    );
+
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(imagesToStore));
+  };
 
   const handleFileChange = async (event) => {
     const files = Array.from(event.target.files);
-    const imageFiles = [];
-    
+    const newImages = [];
+
     for (const file of files) {
-      if (file.type.startsWith('image/')) {
+      if (file.type.startsWith("image/")) {
         try {
-          const reader = new FileReader();
-          const imageUrl = await new Promise((resolve, reject) => {
-            reader.onload = () => resolve(reader.result);
-            reader.onerror = reject;
-            reader.readAsDataURL(file);
-          });
-          setSelectedImage(imageUrl);
-          imageFiles.push(imageUrl);
+          const imageUrl = URL.createObjectURL(file);
+          newImages.push(imageUrl);
+          if (!selectedImage) {
+            setSelectedImage(imageUrl);
+          }
         } catch (error) {
-          console.error('Error reading image file:', error);
-          setError('Failed to load image file.');
+          console.error("Error reading image file:", error);
+          setError("Failed to load image file.");
         }
-      } else if (file.name.endsWith('.zip')) {
+      } else if (file.name.endsWith(".zip")) {
         try {
           const zip = new JSZip();
           const zipContent = await zip.loadAsync(file);
           const zipImages = await Promise.all(
             Object.keys(zipContent.files).map(async (filename) => {
-              if (filename.endsWith('.png') || filename.endsWith('.jpg') || filename.endsWith('.jpeg')) {
-                const fileData = await zip.file(filename).async('blob');
-                return new Promise((resolve, reject) => {
-                  const reader = new FileReader();
-                  reader.onload = () => resolve(reader.result);
-                  reader.onerror = reject;
-                  reader.readAsDataURL(fileData);
-                });
+              if (
+                filename.endsWith(".png") ||
+                filename.endsWith(".jpg") ||
+                filename.endsWith(".jpeg")
+              ) {
+                const fileData = await zip.file(filename).async("blob");
+                return URL.createObjectURL(fileData);
               }
               return null;
             })
           );
           const validImages = zipImages.filter(Boolean);
-          if (validImages.length > 0) {
-            setBackgroundImages(prev => [...prev, ...validImages]);
-          }
+          newImages.push(...validImages);
         } catch (error) {
-          console.error('Error processing zip file:', error);
-          setError('Failed to load zip file. Please make sure it contains valid image files.');
+          console.error("Error processing zip file:", error);
+          setError(
+            "Failed to load zip file. Please make sure it contains valid image files."
+          );
         }
       }
     }
 
-    if (imageFiles.length > 0) {
-      setBackgroundImages(prev => [...prev, ...imageFiles.slice(1)]);
-      setError('');
+    if (newImages.length > 0) {
+      const updatedImages = [...backgroundImages, ...newImages].slice(
+        -MAX_STORED_IMAGES
+      );
+      setBackgroundImages(updatedImages);
+      await saveImages(updatedImages);
+      setError("");
     } else if (!selectedImage) {
-      setError('No valid image files were selected.');
+      setError("No valid image files were selected.");
     }
   };
 
   const handleConfirm = () => {
     try {
-      if (selectedImage) {
-        localStorage.setItem('backgroundImage', selectedImage);
-      }
-      
       const result = {
         sprite: selectedSprite,
         image: selectedImage,
-        additionalImages: backgroundImages
+        additionalImages: backgroundImages,
       };
-      
-      if (typeof onConfirm === 'function') {
+
+      if (typeof onConfirm === "function") {
         onConfirm(result);
       }
-      
-      if (typeof onClose === 'function') {
+
+      if (typeof onClose === "function") {
         onClose();
       }
     } catch (error) {
-      console.error('Error in handleConfirm:', error);
-      setError('Failed to save settings. Please try again.');
+      console.error("Error in handleConfirm:", error);
+      setError("Failed to save settings. Please try again.");
     }
   };
 
@@ -94,27 +130,36 @@ const SettingsPopup = ({ onClose, onConfirm = () => {}, onReset }) => {
       setSelectedSprite(Images.Idle1);
       setSelectedImage(null);
       setBackgroundImages([]);
-      setError('');
-      localStorage.removeItem('backgroundImage');
-      
-      if (typeof onReset === 'function') {
+      setError("");
+      localStorage.removeItem(STORAGE_KEY);
+
+      if (typeof onReset === "function") {
         onReset();
       }
     } catch (error) {
-      console.error('Error in handleReset:', error);
-      setError('Failed to reset settings. Please try again.');
+      console.error("Error in handleReset:", error);
+      setError("Failed to reset settings. Please try again.");
     }
   };
 
+  const handleDeleteImage = (index) => {
+    const updatedImages = backgroundImages.filter((_, i) => i !== index);
+    setBackgroundImages(updatedImages);
+    saveImages(updatedImages);
+  };
+
   return (
-    
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white p-4 md:p-8 rounded-lg shadow-lg relative w-full max-w-full md:max-w-lg">
-        <h2 className="text-xl md:text-2xl font-bold mb-4 md:mb-6">Impostazioni</h2>
+      <div className="bg-white p-4 md:p-8 rounded-lg shadow-lg relative w-full max-w-full md:max-w-lg max-h-[90vh] overflow-y-auto">
+        <h2 className="text-xl md:text-2xl font-bold mb-4 md:mb-6">
+          Impostazioni
+        </h2>
 
         {/* Sprite Selection Section */}
         <div className="mb-4 md:mb-6">
-          <h3 className="text-lg font-semibold mb-2 md:mb-3">Sprite Selezionato</h3>
+          <h3 className="text-lg font-semibold mb-2 md:mb-3">
+            Sprite Selezionato
+          </h3>
           <div className="flex items-center justify-center">
             <div className="p-2 border rounded-lg">
               <img
@@ -128,9 +173,12 @@ const SettingsPopup = ({ onClose, onConfirm = () => {}, onReset }) => {
 
         {/* Image Upload Section */}
         <div className="mb-6 md:mb-8">
-          <h3 className="text-lg font-semibold mb-2 md:mb-3">Carica Immagini</h3>
+          <h3 className="text-lg font-semibold mb-2 md:mb-3">
+            Carica Immagini
+          </h3>
           <p className="text-sm text-gray-600 mb-2">
-            Puoi caricare singole immagini o un file .zip contenente più immagini.
+            Puoi caricare singole immagini o un file .zip contenente più
+            immagini.
           </p>
           <div className="space-y-4">
             <input
@@ -143,11 +191,13 @@ const SettingsPopup = ({ onClose, onConfirm = () => {}, onReset }) => {
             {error && <p className="text-red-600 text-sm">{error}</p>}
             {selectedImage && (
               <div className="mt-2">
-                <h4 className="text-sm font-semibold mb-1">Anteprima immagine principale:</h4>
+                <h4 className="text-sm font-semibold mb-1">
+                  Immagine principale:
+                </h4>
                 <div className="border rounded-lg p-2">
-                  <img 
-                    src={selectedImage} 
-                    alt="Preview" 
+                  <img
+                    src={selectedImage}
+                    alt="Preview"
                     className="w-full h-32 object-contain"
                   />
                 </div>
@@ -155,21 +205,25 @@ const SettingsPopup = ({ onClose, onConfirm = () => {}, onReset }) => {
             )}
             {backgroundImages.length > 0 && (
               <div className="mt-2">
-                <h4 className="text-sm font-semibold mb-1">Immagini aggiuntive caricate: {backgroundImages.length}</h4>
+                <h4 className="text-sm font-semibold mb-1">
+                  Immagini caricate: {backgroundImages.length}
+                </h4>
                 <div className="flex flex-wrap gap-2">
-                  {backgroundImages.slice(0, 3).map((img, index) => (
-                    <img 
-                      key={index}
-                      src={img} 
-                      alt={`Preview ${index + 1}`} 
-                      className="w-16 h-16 object-cover rounded border"
-                    />
-                  ))}
-                  {backgroundImages.length > 3 && (
-                    <div className="w-16 h-16 bg-gray-100 rounded border flex items-center justify-center text-sm text-gray-600">
-                      +{backgroundImages.length - 3}
+                  {backgroundImages.map((img, index) => (
+                    <div key={img} className="relative">
+                      <img
+                        src={img}
+                        alt={`Preview ${index + 1}`}
+                        className="w-16 h-16 object-cover rounded border"
+                      />
+                      <button
+                        onClick={() => handleDeleteImage(index)}
+                        className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors"
+                      >
+                        <X size={12} />
+                      </button>
                     </div>
-                  )}
+                  ))}
                 </div>
               </div>
             )}
@@ -178,19 +232,19 @@ const SettingsPopup = ({ onClose, onConfirm = () => {}, onReset }) => {
 
         {/* Buttons Section */}
         <div className="flex justify-end space-x-4">
-          <button 
+          <button
             onClick={handleReset}
             className="bg-gray-500 text-white py-2 px-4 md:px-6 rounded-lg hover:bg-gray-600 transition-colors"
           >
-            Azzera
+            Cancella tutto
           </button>
-          <button 
+          <button
             onClick={onClose}
             className="bg-red-500 text-white py-2 px-4 md:px-6 rounded-lg hover:bg-red-600 transition-colors"
           >
             Annulla
           </button>
-          <button 
+          <button
             onClick={handleConfirm}
             className="bg-green-500 text-white py-2 px-4 md:px-6 rounded-lg hover:bg-green-600 transition-colors"
           >

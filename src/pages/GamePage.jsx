@@ -1,13 +1,14 @@
 import React, { useState, useCallback, useEffect } from "react";
 import GameBoard from "../components/GameBoard";
 import MobileController from "../components/MobileController";
-import { ThemeProvider, useTheme } from "../hooks/ThemeContext";
+import { useTheme } from "../hooks/ThemeContext";
 import Images from "../constants/Images";
 import SideBar from "../components/SideBar";
 import VictoryPopup from "../components/VictoryPopup";
 import SettingsPopup from "../components/SettingsPopup";
 
 const BOARD_SIZE = 10;
+const STORAGE_KEY = 'uploadedImages';
 
 function GamePage() {
   const { isDarkMode } = useTheme();
@@ -19,10 +20,6 @@ function GamePage() {
   const [showSettings, setShowSettings] = useState(false);
   const [customLevels, setCustomLevels] = useState([]);
 
-  // Combine default images with custom levels
-  const imageArray = [...Object.values(Images), ...customLevels];
-  const currentImage = imageArray[currentImageIndex];
-
   useEffect(() => {
     const checkMobile = () => {
       setIsMobile(window.innerWidth <= 768);
@@ -30,14 +27,27 @@ function GamePage() {
     checkMobile();
     window.addEventListener("resize", checkMobile);
 
-    // Load any saved custom background from localStorage
-    const savedBackground = localStorage.getItem("backgroundImage");
-    if (savedBackground) {
-      setCustomLevels((prev) => [savedBackground, ...prev]);
-    }
+    // Load saved custom backgrounds from localStorage
+    const loadStoredImages = async () => {
+      const storedImages = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+      if (storedImages.length > 0) {
+        const loadedImages = await Promise.all(storedImages.map(async (item) => {
+          const response = await fetch(item.data);
+          const blob = await response.blob();
+          return URL.createObjectURL(blob);
+        }));
+        setCustomLevels(loadedImages);
+        setCurrentImageIndex(Object.values(Images).length);
+      }
+    };
+    loadStoredImages();
 
     return () => window.removeEventListener("resize", checkMobile);
   }, []);
+
+  // Combine default images with custom levels
+  const imageArray = [...Object.values(Images), ...customLevels];
+  const currentImage = imageArray[currentImageIndex];
 
   const movePlayer = useCallback((direction) => {
     setPlayerPosition((prevPos) => {
@@ -102,64 +112,62 @@ function GamePage() {
   };
 
   return (
-    <>
-      <div
-        className={`flex flex-col items-center justify-between min-h-screen p-4 ${
-          isDarkMode
-            ? "bg-gradient-to-b from-gray-800 to-gray-900 text-white"
-            : "bg-gradient-to-b from-blue-100 to-blue-300 text-black"
-        } transition-colors duration-500`}
-      >
-        <div className="w-full max-w-[520px] flex flex-col items-center flex-grow">
-          <SideBar
-            onReset={resetGame}
-            onNewLevel={newLevel}
-            onSettings={() => setShowSettings(true)}
-          />
-          <h1
-            className={`mt-10 text-2xl md:text-4xl font-bold mb-4 md:mb-8 ${
-              isDarkMode ? "text-blue-300" : "text-blue-800"
-            }`}
-          >
-            Esplora l'Immagine
-          </h1>
-          <GameBoard
-            key={gameKey}
-            playerPosition={playerPosition}
-            movePlayer={movePlayer}
-            currentImage={currentImage}
-            boardSize={BOARD_SIZE}
-            onVictory={onVictory}
-            onRestart={resetGame}
-            onNewLevel={newLevel}
-          />
-        </div>
-
-        {isMobile && <MobileController onMove={movePlayer} />}
-
-        {victory && (
-          <VictoryPopup
-            onRestart={resetGame}
-            onNewLevel={newLevel}
-            image={currentImage}
-            onClose={closeVictoryPopup}
-          />
-        )}
-
-        {showSettings && (
-          <SettingsPopup
-            onClose={() => setShowSettings(false)}
-            onConfirm={handleSettingsConfirm}
-            onReset={() => {
-              setCustomLevels([]);
-              localStorage.removeItem("backgroundImage");
-              setCurrentImageIndex(0);
-              resetGame();
-            }}
-          />
-        )}
+    <div
+      className={`flex flex-col items-center justify-between min-h-screen p-4 ${
+        isDarkMode
+          ? "bg-gradient-to-b from-gray-800 to-gray-900 text-white"
+          : "bg-gradient-to-b from-blue-100 to-blue-300 text-black"
+      } transition-colors duration-500`}
+    >
+      <div className="w-full max-w-[520px] flex flex-col items-center flex-grow">
+        <SideBar
+          onReset={resetGame}
+          onNewLevel={newLevel}
+          onSettings={() => setShowSettings(true)}
+        />
+        <h1
+          className={`mt-10 text-2xl md:text-4xl font-bold mb-4 md:mb-8 ${
+            isDarkMode ? "text-blue-300" : "text-blue-800"
+          }`}
+        >
+          Esplora l'Immagine
+        </h1>
+        <GameBoard
+          key={gameKey}
+          playerPosition={playerPosition}
+          movePlayer={movePlayer}
+          currentImage={currentImage}
+          boardSize={BOARD_SIZE}
+          onVictory={onVictory}
+          onRestart={resetGame}
+          onNewLevel={newLevel}
+        />
       </div>
-    </>
+
+      {isMobile && <MobileController onMove={movePlayer} />}
+
+      {victory && (
+        <VictoryPopup
+          onRestart={resetGame}
+          onNewLevel={newLevel}
+          image={currentImage}
+          onClose={closeVictoryPopup}
+        />
+      )}
+
+      {showSettings && (
+        <SettingsPopup
+          onClose={() => setShowSettings(false)}
+          onConfirm={handleSettingsConfirm}
+          onReset={() => {
+            setCustomLevels([]);
+            localStorage.removeItem(STORAGE_KEY);
+            setCurrentImageIndex(0);
+            resetGame();
+          }}
+        />
+      )}
+    </div>
   );
 }
 
