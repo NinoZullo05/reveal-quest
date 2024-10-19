@@ -82,7 +82,7 @@ const LandingPage = () => {
             className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4"
           >
             <Link 
-              to="/game"
+              to="/Game"
               className="inline-flex items-center gap-2 bg-gradient-to-r from-green-400 to-emerald-500 hover:from-green-500 hover:to-emerald-600 text-white font-semibold px-8 py-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 hover:-translate-y-1"
             >
               <Play className="w-5 h-5" />
