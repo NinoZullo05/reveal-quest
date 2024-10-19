@@ -1,7 +1,7 @@
-import { useState, useCallback, useEffect } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import GameBoard from "../components/GameBoard";
 import MobileController from "../components/MobileController";
-import { ThemeProvider } from "../hooks/ThemeContext";
+import { ThemeProvider, useTheme } from "../hooks/ThemeContext";
 import Images from "../constants/Images";
 import SideBar from "../components/SideBar";
 import VictoryPopup from "../components/VictoryPopup";
@@ -9,7 +9,8 @@ import SettingsPopup from "../components/SettingsPopup";
 
 const BOARD_SIZE = 10;
 
-const GamePage = () => {
+function GamePage() {
+  const { isDarkMode } = useTheme();
   const [playerPosition, setPlayerPosition] = useState({ row: 0, col: 0 });
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [gameKey, setGameKey] = useState(0);
@@ -17,7 +18,7 @@ const GamePage = () => {
   const [victory, setVictory] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [customLevels, setCustomLevels] = useState([]);
-  
+
   // Combine default images with custom levels
   const imageArray = [...Object.values(Images), ...customLevels];
   const currentImage = imageArray[currentImageIndex];
@@ -28,13 +29,13 @@ const GamePage = () => {
     };
     checkMobile();
     window.addEventListener("resize", checkMobile);
-    
+
     // Load any saved custom background from localStorage
-    const savedBackground = localStorage.getItem('backgroundImage');
+    const savedBackground = localStorage.getItem("backgroundImage");
     if (savedBackground) {
-      setCustomLevels(prev => [savedBackground, ...prev]);
+      setCustomLevels((prev) => [savedBackground, ...prev]);
     }
-    
+
     return () => window.removeEventListener("resize", checkMobile);
   }, []);
 
@@ -82,34 +83,44 @@ const GamePage = () => {
 
   const handleSettingsConfirm = (result) => {
     const newImages = [];
-    
+
     if (result.image) {
       newImages.push(result.image);
     }
-    
+
     if (result.additionalImages && result.additionalImages.length > 0) {
       newImages.push(...result.additionalImages);
     }
-    
+
     if (newImages.length > 0) {
       setCustomLevels(newImages);
-      setCurrentImageIndex(Object.values(Images).length); 
+      setCurrentImageIndex(Object.values(Images).length);
       resetGame();
     }
-    
+
     setShowSettings(false);
   };
 
   return (
-    <ThemeProvider>
-      <div className="flex flex-col items-center justify-between min-h-screen p-4 bg-gradient-to-b from-blue-100 to-blue-300 dark:from-gray-800 dark:to-gray-900 transition-colors duration-500">
+    <>
+      <div
+        className={`flex flex-col items-center justify-between min-h-screen p-4 ${
+          isDarkMode
+            ? "bg-gradient-to-b from-gray-800 to-gray-900 text-white"
+            : "bg-gradient-to-b from-blue-100 to-blue-300 text-black"
+        } transition-colors duration-500`}
+      >
         <div className="w-full max-w-[520px] flex flex-col items-center flex-grow">
-          <SideBar 
-            onReset={resetGame} 
+          <SideBar
+            onReset={resetGame}
             onNewLevel={newLevel}
             onSettings={() => setShowSettings(true)}
           />
-          <h1 className="mt-10 text-2xl md:text-4xl font-bold mb-4 md:mb-8 text-blue-800 dark:text-blue-300">
+          <h1
+            className={`mt-10 text-2xl md:text-4xl font-bold mb-4 md:mb-8 ${
+              isDarkMode ? "text-blue-300" : "text-blue-800"
+            }`}
+          >
             Esplora l'Immagine
           </h1>
           <GameBoard
@@ -123,9 +134,9 @@ const GamePage = () => {
             onNewLevel={newLevel}
           />
         </div>
-        
+
         {isMobile && <MobileController onMove={movePlayer} />}
-        
+
         {victory && (
           <VictoryPopup
             onRestart={resetGame}
@@ -134,22 +145,22 @@ const GamePage = () => {
             onClose={closeVictoryPopup}
           />
         )}
-        
+
         {showSettings && (
           <SettingsPopup
             onClose={() => setShowSettings(false)}
             onConfirm={handleSettingsConfirm}
             onReset={() => {
               setCustomLevels([]);
-              localStorage.removeItem('backgroundImage');
+              localStorage.removeItem("backgroundImage");
               setCurrentImageIndex(0);
               resetGame();
             }}
           />
         )}
       </div>
-    </ThemeProvider>
+    </>
   );
-};
+}
 
 export default GamePage;

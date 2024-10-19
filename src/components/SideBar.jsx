@@ -1,14 +1,22 @@
-import  { useState } from 'react';
-import { Menu, Home, Settings, HelpCircle, Sun, Moon, RotateCcw } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
-import { useTheme } from '../hooks/ThemeContext';
-import SettingsPopup from './SettingsPopup'; 
+import React, { useState } from "react";
+import {
+  Menu,
+  Home,
+  Settings,
+  HelpCircle,
+  Sun,
+  Moon,
+  RotateCcw,
+} from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { ThemeProvider, useTheme } from "../hooks/ThemeContext";
+import SettingsPopup from "./SettingsPopup";
 
-function Sidebar({ onReset, onNewLevel , onSettings }) {
+function Sidebar({ onReset, onNewLevel, onSettings }) {
   const { isDarkMode, toggleTheme } = useTheme();
   const [isOpen, setIsOpen] = useState(false);
-  const [isSettingsOpen, setIsSettingsOpen] = useState(false); 
-  const navigate = useNavigate(); 
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const navigate = useNavigate();
 
   const handleOverlayClick = () => {
     if (window.innerWidth < 768) {
@@ -31,8 +39,8 @@ function Sidebar({ onReset, onNewLevel , onSettings }) {
 
       <div
         className={`fixed left-0 top-0 h-full bg-white dark:bg-gray-800 shadow-lg transition-all duration-300 z-50
-          ${isOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
-          ${isOpen ? 'w-64' : 'w-16'}
+          ${isOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"}
+          ${isOpen ? "w-64" : "w-16"}
           md:block`}
       >
         <div className="hidden md:block">
@@ -58,10 +66,12 @@ function Sidebar({ onReset, onNewLevel , onSettings }) {
               <li>
                 <button
                   className="flex items-center space-x-3 w-full p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-                  onClick={() => navigate('/')}
+                  onClick={() => navigate("/")}
                 >
                   <Home className="w-5 h-5 text-blue-600" />
-                  {isOpen && <span className="dark:text-white text-black">Home</span>}
+                  {isOpen && (
+                    <span className="dark:text-white text-black">Home</span>
+                  )}
                 </button>
               </li>
               <li>
@@ -70,7 +80,11 @@ function Sidebar({ onReset, onNewLevel , onSettings }) {
                   onClick={onNewLevel}
                 >
                   <RotateCcw className="w-5 h-5 text-green-600" />
-                  {isOpen && <span className="dark:text-white text-black">Ricomincia</span>}
+                  {isOpen && (
+                    <span className="dark:text-white text-black">
+                      Ricomincia
+                    </span>
+                  )}
                 </button>
               </li>
               <li>
@@ -79,16 +93,22 @@ function Sidebar({ onReset, onNewLevel , onSettings }) {
                   onClick={onSettings}
                 >
                   <Settings className="w-5 h-5 text-gray-600" />
-                  {isOpen && <span className="dark:text-white text-black">Impostazioni</span>}
+                  {isOpen && (
+                    <span className="dark:text-white text-black">
+                      Impostazioni
+                    </span>
+                  )}
                 </button>
               </li>
               <li>
                 <button
                   className="flex items-center space-x-3 w-full p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-                  onClick={() => navigate('/Guide')}
+                  onClick={() => navigate("/Guide")}
                 >
                   <HelpCircle className="w-5 h-5 text-purple-600" />
-                  {isOpen && <span className="dark:text-white text-black">Aiuto</span>}
+                  {isOpen && (
+                    <span className="dark:text-white text-black">Aiuto</span>
+                  )}
                 </button>
               </li>
             </ul>
@@ -102,12 +122,20 @@ function Sidebar({ onReset, onNewLevel , onSettings }) {
               {isDarkMode ? (
                 <>
                   <Sun className="w-5 h-5 text-yellow-500" />
-                  {isOpen && <span className="dark:text-white text-black">Modalità Chiara</span>}
+                  {isOpen && (
+                    <span className="dark:text-white text-black">
+                      Modalità Chiara
+                    </span>
+                  )}
                 </>
               ) : (
                 <>
                   <Moon className="w-5 h-5 text-blue-500" />
-                  {isOpen && <span className="dark:text-white text-black">Modalità Scura</span>}
+                  {isOpen && (
+                    <span className="dark:text-white text-black">
+                      Modalità Scura
+                    </span>
+                  )}
                 </>
               )}
             </button>

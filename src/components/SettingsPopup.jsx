@@ -107,6 +107,7 @@ const SettingsPopup = ({ onClose, onConfirm = () => {}, onReset }) => {
   };
 
   return (
+    
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white p-4 md:p-8 rounded-lg shadow-lg relative w-full max-w-full md:max-w-lg">
         <h2 className="text-xl md:text-2xl font-bold mb-4 md:mb-6">Impostazioni</h2>

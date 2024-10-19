@@ -1,16 +1,18 @@
-import React from 'react';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import LandingPage from './pages/LandingPage';
-import GamePage from './pages/GamePage'; 
-
+import React from "react";
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import LandingPage from "./pages/LandingPage";
+import GamePage from "./pages/GamePage";
+import { ThemeProvider } from "./hooks/ThemeContext";
 const App = () => {
   return (
-    <Router>
-      <Routes>
-        <Route path="/" element={<LandingPage />} />
-        <Route path="/game" element={<GamePage />} />
-      </Routes>
-    </Router>
+    <ThemeProvider>
+      <Router>
+        <Routes>
+          <Route path="/" element={<LandingPage />} />
+          <Route path="/game" element={<GamePage />} />
+        </Routes>
+      </Router>
+    </ThemeProvider>
   );
 };
 
