@@ -9,13 +9,15 @@ import {
   RotateCcw,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { ThemeProvider, useTheme } from "../hooks/ThemeContext";
+import { useTheme } from "../hooks/ThemeContext";
 import SettingsPopup from "./SettingsPopup";
+import GuidePopup from "./GuidePopup";
 
-function Sidebar({ onReset, onNewLevel, onSettings }) {
+function Sidebar({ onReset, onNewLevel }) {
   const { isDarkMode, toggleTheme } = useTheme();
   const [isOpen, setIsOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [isGuideOpen, setIsGuideOpen] = useState(false);
   const navigate = useNavigate();
 
   const handleOverlayClick = () => {
@@ -27,6 +29,9 @@ function Sidebar({ onReset, onNewLevel, onSettings }) {
   const handleSettingsClick = () => {
     setIsSettingsOpen(true);
   };
+
+  const openGuide = () => setIsGuideOpen(true);
+  const closeGuide = () => setIsGuideOpen(false);
 
   return (
     <>
@@ -90,7 +95,7 @@ function Sidebar({ onReset, onNewLevel, onSettings }) {
               <li>
                 <button
                   className="flex items-center space-x-3 w-full p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-                  onClick={onSettings}
+                  onClick={handleSettingsClick}
                 >
                   <Settings className="w-5 h-5 text-gray-600" />
                   {isOpen && (
@@ -103,11 +108,13 @@ function Sidebar({ onReset, onNewLevel, onSettings }) {
               <li>
                 <button
                   className="flex items-center space-x-3 w-full p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-                  onClick={() => navigate("/Guide")}
+                  onClick={openGuide}
                 >
                   <HelpCircle className="w-5 h-5 text-purple-600" />
                   {isOpen && (
-                    <span className="dark:text-white text-black">Aiuto</span>
+                    <span className="dark:text-white text-black">
+                      Apri Guida
+                    </span>
                   )}
                 </button>
               </li>
@@ -155,6 +162,8 @@ function Sidebar({ onReset, onNewLevel, onSettings }) {
       {isSettingsOpen && (
         <SettingsPopup onClose={() => setIsSettingsOpen(false)} />
       )}
+
+      <GuidePopup isOpen={isGuideOpen} onClose={closeGuide} />
     </>
   );
 }
