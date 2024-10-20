@@ -8,7 +8,7 @@ function Tile({ row, col, playerPosition, explored, currentImage, boardSize }) {
 
   return (
     <div 
-      className={`relative w-full h-full ${explored ? '' : isDarkMode ? 'bg-gray-700' : 'bg-gray-300'} border border-gray-600`}
+      className={`relative w-full h-full ${explored ? '' : isDarkMode ? 'bg-gray-700' : 'bg-gray-300'}`}
       style={{
         backgroundImage: explored ? `url(${currentImage})` : 'none',
         backgroundPosition: `${-col * 100}% ${-row * 100}%`,
