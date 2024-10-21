@@ -29,7 +29,7 @@ In this game, you'll guide your character through various levels, facing challen
    ```bash
    npm start
    ```
-4. Follow the on-screen instructions to guide your character through the adventures! 🚀✨
+4. Follow the guide instructions to bring your character through the adventures! 🚀✨
 
 ## 🛠️ Technologies Used
 
