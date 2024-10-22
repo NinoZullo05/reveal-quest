@@ -1,4 +1,4 @@
-# 🎮 Interactive Adventure Game 🚀
+# 🖼️ Interactive Adventure Game 🚀
 
 Welcome to our fantastic Adventure Game! Join us on this exciting journey where you can explore unique worlds, solve puzzles, and experience unforgettable adventures! 🌟
 
