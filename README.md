@@ -14,7 +14,7 @@ In this game, you'll guide your character through various levels, facing challen
 - **Dark and Light Modes**: Play in your preferred lighting conditions! 🌙☀️
 - **Victory Pop-ups**: Celebrate when you win! 🎉🥳
 
-## 🎯 How to Play
+## 🎯 How to Play!
 
 1. Clone the repository:
    ```bash
